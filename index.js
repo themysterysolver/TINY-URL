@@ -68,7 +68,17 @@ app.get('/urls', async (req, res) => {
 
 // GET: Redirect short URL to long URL
 app.get('/r/:short_url', async (req, res) => {
- 
+  try {
+    const { short_url } = req.params;
+    const exists = await pool.query('select * from urls where short_url = $1',[short_url]);
+    if(exists.rows.length===0){
+      return res.status(404).send('URL Not found');
+    }
+    res.redirect(exists.rows[0].long_url);
+  }catch(e){
+    console.error(e.message)
+    return res.status(500).send('SERVER ERROR')
+  }
 });
 
 
