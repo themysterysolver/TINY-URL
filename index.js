@@ -33,11 +33,11 @@ app.post('/shorten', async (req, res) => {
     //console.log(surls.rows);
 
     
-    ```
+    /*
     There are certain properties you should remember prabha,
     rows,rowcount,command
     and map returns and array
-    ```
+    */
 
     let arr = surls.rows.map(item=>item.short_url)
     while(arr.includes(code)){
@@ -74,12 +74,23 @@ app.get('/r/:short_url', async (req, res) => {
     if(exists.rows.length===0){
       return res.status(404).send('URL Not found');
     }
+    let t = await pool.query('UPDATE urls SET last_used = NOW() where short_url = $1 returning *',[short_url])
+    //console.log(t.rows)
     res.redirect(exists.rows[0].long_url);
   }catch(e){
     console.error(e.message)
     return res.status(500).send('SERVER ERROR')
   }
 });
+
+setInterval(async ()=>{
+  try{
+    let delr = await pool.query("DELETE FROM urls WHERE last_used < NOW() - INTERVAL '1 day'");
+    console.log(delr.rows);
+  }catch(e){
+    console.error(e.message)
+  }
+},2*24*60*60*1000) //remember they are in ms 
 
 
 app.listen(3000, () => console.log('Server running on port 3000'));
