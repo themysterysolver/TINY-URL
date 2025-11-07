@@ -30,9 +30,22 @@ app.post('/shorten', async (req, res) => {
     }
     let code = generateShortCode(6);
     const surls = await pool.query('SELECT short_url from urls')
-    console.log(surls);
+    //console.log(surls.rows);
 
     
+    ```
+    There are certain properties you should remember prabha,
+    rows,rowcount,command
+    and map returns and array
+    ```
+
+    let arr = surls.rows.map(item=>item.short_url)
+    while(arr.includes(code)){
+      code=generateShortCode(6);
+    }
+    let result = await pool.query('INSERT INTO urls (long_url,short_url) VALUES ($1,$2) RETURNING *',[long_url,code])
+
+    return res.json({shortend_url:BASE_URL+result.rows[0].short_url})
   }catch(e){
     console.error(e.message);
     res.status(500).send('SERVER ERROR');
