@@ -1,7 +1,11 @@
 import express from 'express';
 import pool from './db.js';
+import cors from 'cors';
+
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 
 const BASE_URL = "http://localhost:3000/"; 
@@ -26,7 +30,7 @@ app.post('/shorten', async (req, res) => {
     //checking if it already exist
     const exists = await pool.query('SELECT * FROM urls where long_url = $1',[long_url]);
     if(exists.rows.length>0){
-      return res.json(exists.rows[0]);
+      return res.json({shortend_url:BASE_URL+'r/'+exists.rows[0].short_url});
     }
     let code = generateShortCode(6);
     const surls = await pool.query('SELECT short_url from urls')
@@ -45,7 +49,7 @@ app.post('/shorten', async (req, res) => {
     }
     let result = await pool.query('INSERT INTO urls (long_url,short_url) VALUES ($1,$2) RETURNING *',[long_url,code])
 
-    return res.json({shortend_url:BASE_URL+result.rows[0].short_url})
+    return res.json({shortend_url:BASE_URL+'r/'+result.rows[0].short_url})
   }catch(e){
     console.error(e.message);
     res.status(500).send('SERVER ERROR');
