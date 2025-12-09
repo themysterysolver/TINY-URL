@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const BASE_URL = "http://localhost:3000/"; 
+const BASE_URL = "https://tiny-url-gules.vercel.app/"; 
 
 
 function generateShortCode(length = 6) {
@@ -87,14 +87,15 @@ app.get('/r/:short_url', async (req, res) => {
   }
 });
 
-setInterval(async ()=>{
-  try{
-    let delr = await pool.query("DELETE FROM urls WHERE last_used < NOW() - INTERVAL '1 day'");
-    console.log(delr.rows);
-  }catch(e){
-    console.error(e.message)
-  }
-},2*24*60*60*1000) //remember they are in ms 
+// setInterval(async ()=>{
+//   try{
+//     let delr = await pool.query("DELETE FROM urls WHERE last_used < NOW() - INTERVAL '1 day'");
+//     console.log(delr.rows);
+//   }catch(e){
+//     console.error(e.message)
+//   }
+// },2*24*60*60*1000) //remember they are in ms 
 
+export default app;
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+// app.listen(3000, () => console.log('Server running on port 3000'));
